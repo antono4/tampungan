@@ -492,45 +492,72 @@ if ($isLoggedIn && $userId) {
         const stopBtn = document.getElementById('stop-btn');
         const cameraStatus = document.getElementById('camera-status');
         
-        // Face-api.js Model URLs - Try local first, then CDN
-        const LOCAL_MODEL_URL = 'models';
-        const CDN_MODEL_URL = 'https://justadudwohl.github.io/face-api.js/models';
+        // Get base URL dynamically
+        const BASE_URL = window.location.origin + window.location.pathname.replace('face-login.php', '');
+        const LOCAL_MODEL_URL = BASE_URL + 'models';
+        
+        // Check if local models exist on page load
+        async function checkLocalModels() {
+            try {
+                const response = await fetch('models/tiny_face_detector_model-weights_manifest.json');
+                return response.ok;
+            } catch {
+                return false;
+            }
+        }
+        
+        // Show download instruction if local models don't exist
+        checkLocalModels().then(exists => {
+            if (!exists) {
+                const downloadMsg = document.createElement('div');
+                downloadMsg.className = 'mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-sm';
+                downloadMsg.innerHTML = '<i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>' +
+                    '<strong>Models belum ada.</strong> Download dulu: ' +
+                    '<a href="models/download-models.bat" class="text-blue-600 underline">download-models.bat</a> atau ' +
+                    '<a href="check-models.php" class="text-blue-600 underline">cek status</a>.';
+                cameraStatus.parentElement.appendChild(downloadMsg);
+            }
+        });
         
         async function loadModels() {
-            // Try local models first
+            // Model sources: local first, then CDN
             const modelSources = [
-                LOCAL_MODEL_URL,
-                CDN_MODEL_URL,
-                'https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/model'
+                { url: LOCAL_MODEL_URL, label: 'lokal' },
+                { url: 'https://justadudwohl.github.io/face-api.js/models', label: 'CDN' }
             ];
             
             let loaded = false;
+            let lastError = '';
             
-            for (const url of modelSources) {
+            for (const source of modelSources) {
                 try {
-                    cameraStatus.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-1"></i> Memuat model face detection...';
+                    cameraStatus.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-1"></i> Memuat model face detection dari ' + source.label + '...';
                     
-                    await faceapi.nets.tinyFaceDetector.loadFromUri(url);
-                    await faceapi.nets.faceLandmark68Net.loadFromUri(url);
-                    await faceapi.nets.faceRecognitionNet.loadFromUri(url);
+                    // Load all required models
+                    await faceapi.nets.tinyFaceDetector.loadFromUri(source.url);
+                    await faceapi.nets.faceLandmark68Net.loadFromUri(source.url);
+                    await faceapi.nets.faceRecognitionNet.loadFromUri(source.url);
                     
                     isModelLoaded = true;
-                    const sourceLabel = url === LOCAL_MODEL_URL ? '(lokal)' : '(online)';
-                    cameraStatus.innerHTML = '<i class="fas fa-check-circle text-green-500 mr-1"></i> Model siap ' + sourceLabel + '! Klik "Mulai Kamera" untuk memulai';
+                    cameraStatus.innerHTML = '<i class="fas fa-check-circle text-green-500 mr-1"></i> Model siap (' + source.label + ')! Klik "Mulai Kamera" untuk memulai';
                     startBtn.disabled = false;
                     
+                    // Load registered faces
                     await loadRegisteredFaces();
                     loaded = true;
                     break;
+                    
                 } catch (error) {
-                    console.warn('Failed to load from:', url, error);
+                    lastError = error.message || String(error);
+                    console.warn('Failed to load from ' + source.url + ':', error);
                 }
             }
             
             if (!loaded) {
-                cameraStatus.innerHTML = '<i class="fas fa-exclamation-circle text-red-500 mr-1"></i> Gagal memuat model.';
-                cameraStatus.innerHTML += '<br><span class="text-sm">Download models secara manual atau cek koneksi internet.</span>';
-                cameraStatus.innerHTML += '<br><button onclick="loadModels()" class="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Coba Lagi</button>';
+                cameraStatus.innerHTML = '<i class="fas fa-exclamation-circle text-red-500 mr-1"></i> Gagal memuat model.<br>';
+                cameraStatus.innerHTML += '<span class="text-xs">Error: ' + lastError.substring(0, 100) + '</span><br>';
+                cameraStatus.innerHTML += '<button onclick="loadModels()" class="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Coba Lagi</button>';
+                cameraStatus.innerHTML += '<br><br><span class="text-xs">Pastikan folder models sudah ada dengan 6 file model.</span>';
             }
         }
         
