@@ -492,18 +492,21 @@ if ($isLoggedIn && $userId) {
         const stopBtn = document.getElementById('stop-btn');
         const cameraStatus = document.getElementById('camera-status');
         
-        // Face-api.js Model URLs
-        const MODEL_URL = 'https://justadudwohl.github.io/face-api.js/models';
+        // Face-api.js Model URLs - Try local first, then CDN
+        const LOCAL_MODEL_URL = 'models';
+        const CDN_MODEL_URL = 'https://justadudwohl.github.io/face-api.js/models';
         
         async function loadModels() {
-            const modelUrls = [
-                'https://justadudwohl.github.io/face-api.js/models',
+            // Try local models first
+            const modelSources = [
+                LOCAL_MODEL_URL,
+                CDN_MODEL_URL,
                 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/model'
             ];
             
             let loaded = false;
             
-            for (const url of modelUrls) {
+            for (const url of modelSources) {
                 try {
                     cameraStatus.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-1"></i> Memuat model face detection...';
                     
@@ -512,7 +515,8 @@ if ($isLoggedIn && $userId) {
                     await faceapi.nets.faceRecognitionNet.loadFromUri(url);
                     
                     isModelLoaded = true;
-                    cameraStatus.innerHTML = '<i class="fas fa-check-circle text-green-500 mr-1"></i> Model siap! Klik "Mulai Kamera" untuk memulai';
+                    const sourceLabel = url === LOCAL_MODEL_URL ? '(lokal)' : '(online)';
+                    cameraStatus.innerHTML = '<i class="fas fa-check-circle text-green-500 mr-1"></i> Model siap ' + sourceLabel + '! Klik "Mulai Kamera" untuk memulai';
                     startBtn.disabled = false;
                     
                     await loadRegisteredFaces();
@@ -524,7 +528,8 @@ if ($isLoggedIn && $userId) {
             }
             
             if (!loaded) {
-                cameraStatus.innerHTML = '<i class="fas fa-exclamation-circle text-red-500 mr-1"></i> Gagal memuat model. Pastikan koneksi internet stabil.';
+                cameraStatus.innerHTML = '<i class="fas fa-exclamation-circle text-red-500 mr-1"></i> Gagal memuat model.';
+                cameraStatus.innerHTML += '<br><span class="text-sm">Download models secara manual atau cek koneksi internet.</span>';
                 cameraStatus.innerHTML += '<br><button onclick="loadModels()" class="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Coba Lagi</button>';
             }
         }
