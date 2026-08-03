@@ -41,14 +41,14 @@ echo Verifying files...
 echo.
 
 REM Verify files
-set ALL_OK=1"
+set ALL_OK=1
 
-if not exist "models\tiny_face_detector_model-weights_manifest.json" set ALL_OK=0 & echo [ERROR] tiny_face_detector_model-weights_manifest.json not found
-if not exist "models\tiny_face_detector_model-shard1" set ALL_OK=0 & echo [ERROR] tiny_face_detector_model-shard1 not found
-if not exist "models\face_landmark_68_model-weights_manifest.json" set ALL_OK=0 & echo [ERROR] face_landmark_68_model-weights_manifest.json not found
-if not exist "models\face_landmark_68_model-shard1" set ALL_OK=0 & echo [ERROR] face_landmark_68_model-shard1 not found
-if not exist "models\face_recognition_model-weights_manifest.json" set ALL_OK=0 & echo [ERROR] face_recognition_model-weights_manifest.json not found
-if not exist "models\face_recognition_model-shard1" set ALL_OK=0 & echo [ERROR] face_recognition_model-shard1 not found
+if not exist "models\tiny_face_detector_model-weights_manifest.json" set ALL_OK=0 && echo [ERROR] tiny_face_detector_model-weights_manifest.json not found
+if not exist "models\tiny_face_detector_model-shard1" set ALL_OK=0 && echo [ERROR] tiny_face_detector_model-shard1 not found
+if not exist "models\face_landmark_68_model-weights_manifest.json" set ALL_OK=0 && echo [ERROR] face_landmark_68_model-weights_manifest.json not found
+if not exist "models\face_landmark_68_model-shard1" set ALL_OK=0 && echo [ERROR] face_landmark_68_model-shard1 not found
+if not exist "models\face_recognition_model-weights_manifest.json" set ALL_OK=0 && echo [ERROR] face_recognition_model-weights_manifest.json not found
+if not exist "models\face_recognition_model-shard1" set ALL_OK=0 && echo [ERROR] face_recognition_model-shard1 not found
 
 if "%ALL_OK%"=="1" (
     echo.
