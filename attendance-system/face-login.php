@@ -135,7 +135,7 @@ if ($isLoggedIn && $userId) {
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Face-api.js -->
-    <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+    <script src="https://unpkg.com/face-api.js@0.22.2/dist/face-api.min.js"></script>
     
     <script>
         tailwind.config = {
@@ -493,30 +493,42 @@ if ($isLoggedIn && $userId) {
         const cameraStatus = document.getElementById('camera-status');
         
         async function loadModels() {
-            // Model source: Use CDN directly
-            const MODEL_URL = 'https://justadudwohl.github.io/face-api.js/models';
+            // Try multiple CDN sources
+            const cdnUrls = [
+                'https://unpkg.com/face-api.js@0.22.2/model',
+                'https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/model',
+                'https://justadudwohl.github.io/face-api.js/models'
+            ];
             
-            cameraStatus.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-1"></i> Memuat model face detection...';
+            let loaded = false;
+            let lastError = '';
             
-            try {
-                // Load all required models from CDN
-                await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
-                await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
-                await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
-                
-                isModelLoaded = true;
-                cameraStatus.innerHTML = '<i class="fas fa-check-circle text-green-500 mr-1"></i> Model siap (CDN)! Klik "Mulai Kamera" untuk memulai';
-                startBtn.disabled = false;
-                
-                // Load registered faces
-                await loadRegisteredFaces();
-                
-            } catch (error) {
-                console.error('Failed to load models:', error);
+            for (const MODEL_URL of cdnUrls) {
+                try {
+                    cameraStatus.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-1"></i> Mencoba load model...';
+                    
+                    await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+                    await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+                    await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+                    
+                    isModelLoaded = true;
+                    cameraStatus.innerHTML = '<i class="fas fa-check-circle text-green-500 mr-1"></i> Model siap! Klik "Mulai Kamera" untuk memulai';
+                    startBtn.disabled = false;
+                    
+                    await loadRegisteredFaces();
+                    loaded = true;
+                    break;
+                    
+                } catch (error) {
+                    lastError = error.message || String(error);
+                    console.warn('Failed:', MODEL_URL, error);
+                }
+            }
+            
+            if (!loaded) {
                 cameraStatus.innerHTML = '<i class="fas fa-exclamation-circle text-red-500 mr-1"></i> Gagal memuat model.<br>';
-                cameraStatus.innerHTML += '<span class="text-xs">Error: ' + (error.message || 'Unknown error') + '</span><br>';
-                cameraStatus.innerHTML += '<button onclick="loadModels()" class="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Coba Lagi</button>';
-                cameraStatus.innerHTML += '<br><br><span class="text-xs">Pastikan koneksi internet stabil.</span>';
+                cameraStatus.innerHTML += '<span class="text-xs block mt-2">Error: ' + lastError.substring(0, 80) + '</span>';
+                cameraStatus.innerHTML += '<br><button onclick="loadModels()" class="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Coba Lagi</button>';
             }
         }
         
