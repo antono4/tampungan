@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Models - Face Recognition</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
+        h1 { color: #333; }
+        .success { color: green; background: #d4edda; padding: 10px; border-radius: 5px; margin: 10px 0; }
+        .error { color: red; background: #f8d7da; padding: 10px; border-radius: 5px; margin: 10px 0; }
+        .info { color: blue; background: #cce5ff; padding: 10px; border-radius: 5px; margin: 10px 0; }
+        ul { line-height: 1.8; }
+        button { padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; margin: 5px; }
+        button:hover { background: #764ba2; }
+        pre { background: #f4f4f4; padding: 15px; border-radius: 5px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Face Recognition Models Test</h1>
+    
+    <h2>1. Cek Folder Models</h2>
+    <div id="folder-check">Memeriksa...</div>
+    
+    <h2>2. Cek Koneksi ke CDN</h2>
+    <div id="cdn-check">Memeriksa...</div>
+    
+    <h2>3. Test Load face-api.js</h2>
+    <div id="faceapi-check">Memeriksa...</div>
+    
+    <h2>4. Test Load Models</h2>
+    <div id="model-check">
+        <button onclick="testLoadModels()">Klik untuk Test Load Models</button>
+    </div>
+    
+    <div id="result"></div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+    
+    <script>
+        const resultDiv = document.getElementById('result');
+        
+        // Test 1: Check local folder
+        async function checkFolder() {
+            const div = document.getElementById('folder-check');
+            const files = [
+                'models/tiny_face_detector_model-weights_manifest.json',
+                'models/tiny_face_detector_model-shard1',
+                'models/face_landmark_68_model-weights_manifest.json',
+                'models/face_landmark_68_model-shard1',
+                'models/face_recognition_model-weights_manifest.json',
+                'models/face_recognition_model-shard1'
+            ];
+            
+            let allExist = true;
+            let html = '<ul>';
+            
+            for (const file of files) {
+                try {
+                    const response = await fetch(file);
+                    if (response.ok) {
+                        html += '<li class="success">✅ ' + file + '</li>';
+                    } else {
+                        html += '<li class="error">❌ ' + file + ' (status: ' + response.status + ')</li>';
+                        allExist = false;
+                    }
+                } catch (e) {
+                    html += '<li class="error">❌ ' + file + ' (error: ' + e.message + ')</li>';
+                    allExist = false;
+                }
+            }
+            html += '</ul>';
+            
+            if (allExist) {
+                div.innerHTML = '<div class="success">✅ Semua file model ada di folder!</div>' + html;
+            } else {
+                div.innerHTML = '<div class="error">❌ Ada file model yang missing!</div>' + html;
+                div.innerHTML += '<br><button onclick="downloadModels()">Download Models Sekarang</button>';
+            }
+        }
+        
+        // Test 2: Check CDN
+        async function checkCDN() {
+            const div = document.getElementById('cdn-check');
+            try {
+                const response = await fetch('https://justadudwohl.github.io/face-api.js/models/tiny_face_detector_model-weights_manifest.json');
+                if (response.ok) {
+                    div.innerHTML = '<div class="success">✅ CDN accessible (justadudwohl.github.io)</div>';
+                } else {
+                    div.innerHTML = '<div class="error">❌ CDN returns status: ' + response.status + '</div>';
+                }
+            } catch (e) {
+                div.innerHTML = '<div class="error">❌ CDN tidak bisa diakses: ' + e.message + '</div>';
+                div.innerHTML += '<div class="info">Coba buka link ini di browser: <a href="https://justadudwohl.github.io/face-api.js/models/tiny_face_detector_model-weights_manifest.json" target="_blank">Test CDN</a></div>';
+            }
+        }
+        
+        // Test 3: Check face-api.js loaded
+        function checkFaceAPI() {
+            const div = document.getElementById('faceapi-check');
+            if (typeof faceapi !== 'undefined') {
+                div.innerHTML = '<div class="success">✅ face-api.js loaded! Version: ' + (faceapi.version || 'unknown') + '</div>';
+                return true;
+            } else {
+                div.innerHTML = '<div class="error">❌ face-api.js NOT loaded!</div>';
+                return false;
+            }
+        }
+        
+        // Test 4: Load models
+        async function testLoadModels() {
+            const div = document.getElementById('model-check');
+            div.innerHTML = '<div class="info">⏳ Loading models...</div>';
+            
+            try {
+                // Try local first
+                await faceapi.nets.tinyFaceDetector.loadFromUri('models');
+                await faceapi.nets.faceLandmark68Net.loadFromUri('models');
+                await faceapi.nets.faceRecognitionNet.loadFromUri('models');
+                
+                div.innerHTML = '<div class="success">✅ Semua model berhasil dimuat dari LOCAL!</div>';
+                div.innerHTML += '<br><a href="face-login.php"><button>➡ Buka Face Login</button></a>';
+                
+            } catch (e) {
+                div.innerHTML = '<div class="error">❌ Gagal load dari local: ' + e.message + '</div>';
+                div.innerHTML += '<br><button onclick="tryCDN()">Coba dari CDN</button>';
+            }
+        }
+        
+        // Try CDN as fallback
+        async function tryCDN() {
+            const div = document.getElementById('model-check');
+            div.innerHTML = '<div class="info">⏳ Trying CDN...</div>';
+            
+            try {
+                await faceapi.nets.tinyFaceDetector.loadFromUri('https://justadudwohl.github.io/face-api.js/models');
+                await faceapi.nets.faceLandmark68Net.loadFromUri('https://justadudwohl.github.io/face-api.js/models');
+                await faceapi.nets.faceRecognitionNet.loadFromUri('https://justadudwohl.github.io/face-api.js/models');
+                
+                div.innerHTML = '<div class="success">✅ Semua model berhasil dimuat dari CDN!</div>';
+                div.innerHTML += '<br><a href="face-login.php"><button>➡ Buka Face Login</button></a>';
+                
+            } catch (e) {
+                div.innerHTML = '<div class="error">❌ Gagal load dari CDN juga: ' + e.message + '</div>';
+                div.innerHTML += '<br><div class="info">Solusi: Download models secara manual ke folder models/</div>';
+            }
+        }
+        
+        // Download models using browser fetch
+        async function downloadModels() {
+            const div = document.getElementById('folder-check');
+            div.innerHTML = '<div class="info">⏳ Downloading models...</div>';
+            
+            const baseUrl = 'https://github.com/justadudwohl/face-api.js/raw/master/model';
+            const files = [
+                'tiny_face_detector_model-weights_manifest.json',
+                'tiny_face_detector_model-shard1',
+                'face_landmark_68_model-weights_manifest.json',
+                'face_landmark_68_model-shard1',
+                'face_recognition_model-weights_manifest.json',
+                'face_recognition_model-shard1'
+            ];
+            
+            // Note: Browser cannot save files directly due to security
+            // User must use the download-models.bat file
+            div.innerHTML = '<div class="error">⚠️ Browser tidak bisa download file secara langsung.</div>';
+            div.innerHTML += '<br><div class="info">Silakan download manual:</div>';
+            div.innerHTML += '<ul>';
+            for (const file of files) {
+                div.innerHTML += '<li><a href="' + baseUrl + '/' + file + '" target="_blank">' + file + '</a></li>';
+            }
+            div.innerHTML += '</ul>';
+            div.innerHTML += '<br><div class="info">Atau jalankan file: <code>models\download-models.bat</code></div>';
+        }
+        
+        // Run all checks on page load
+        window.onload = async function() {
+            checkFolder();
+            checkCDN();
+            if (checkFaceAPI()) {
+                // Auto-test load if face-api.js is loaded
+                setTimeout(testLoadModels, 500);
+            }
+        };
+    </script>
+</body>
+</html>
