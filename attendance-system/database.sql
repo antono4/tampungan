@@ -16,6 +16,8 @@ CREATE TABLE IF NOT EXISTS users (
     username VARCHAR(50) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     role ENUM('admin', 'karyawan') NOT NULL DEFAULT 'karyawan',
+    photo MEDIUMBLOB NULL,
+    photo_type VARCHAR(50) DEFAULT 'image/jpeg',
     face_encoding TEXT NULL,
     face_registered TINYINT(1) DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -61,6 +63,13 @@ INSERT INTO users (nama, username, password, role) VALUES
 -- =====================================================
 -- ALTER TABLE users ADD COLUMN face_encoding TEXT NULL AFTER password;
 -- ALTER TABLE users ADD COLUMN face_registered TINYINT(1) DEFAULT 0 AFTER face_encoding;
+
+-- =====================================================
+-- MIGRASI: Tambahkan kolom photo untuk foto profil
+-- Jalankan jika database sudah ada sebelumnya
+-- =====================================================
+-- ALTER TABLE users ADD COLUMN photo MEDIUMBLOB NULL AFTER role;
+-- ALTER TABLE users ADD COLUMN photo_type VARCHAR(50) DEFAULT 'image/jpeg' AFTER photo;
 
 -- =====================================================
 -- DATA CONTOH - Karyawan

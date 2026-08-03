@@ -1,15 +1,23 @@
 # 📋 Sistem Absensi (Attendance System)
 
-Aplikasi Absensi karyawan menggunakan PHP dan MySQL dengan antarmuka modern menggunakan Tailwind CSS dan Face Recognition untuk login.
+Aplikasi Absensi karyawan menggunakan PHP dan MySQL dengan antarmuka modern menggunakan Tailwind CSS, Face Recognition, dan Upload Foto.
 
 ## ✨ Fitur
 
 ### 🔐 Sistem Login & Keamanan
 - Login dengan session yang aman
-- Login dengan **Face Recognition** (recognition wajah)
+- Login dengan **Face Recognition** (pengenalan wajah)
 - Password di-hash menggunakan bcrypt
 - Proteksi SQL Injection dengan Prepared Statements
 - Proteksi Unauthorized Access dengan role checking
+
+### 📷 Upload Foto Profil
+- Upload foto dari perangkat
+- Ambil foto langsung dari kamera
+- Foto disimpan di database (BLOB)
+- Foto ditampilkan di avatar dashboard
+- Format support: JPG, PNG, GIF, WebP
+- Maksimal ukuran: 5MB
 
 ### 👨‍💼 Mode Admin
 - Dashboard dengan statistik real-time
@@ -27,6 +35,21 @@ Aplikasi Absensi karyawan menggunakan PHP dan MySQL dengan antarmuka modern meng
 - Registrasi wajah untuk user
 - Teknologi: face-api.js (TensorFlow.js based)
 - Mendukung multiple users dengan face data
+
+## 📷 Cara Menggunakan Upload Foto
+
+### 1. Upload dari Perangkat
+1. Login ke sistem
+2. Klik tombol **Upload Foto** di navbar
+3. Pilih **Pilih Foto** dari perangkat
+4. Klik **Upload Foto**
+
+### 2. Ambil Foto dari Kamera
+1. Login ke sistem
+2. Klik tombol **Upload Foto** di navbar
+3. Klik **Mulai Kamera**
+4. Klik **Ambil Foto** untuk capture
+5. Klik **Simpan Foto** untuk menyimpan
 
 ## 🎭 Cara Menggunakan Face Recognition Login
 
@@ -100,6 +123,8 @@ attendance-system/
 ├── db.php           # Koneksi database dan fungsi CRUD
 ├── index.php        # Main application (UI + Logic)
 ├── face-login.php   # Face Recognition Login Page
+├── upload-photo.php # Upload Photo Page
+├── view-photo.php   # API untuk menampilkan foto
 ├── api/
 │   └── get-face-data.php  # API untuk data face recognition
 └── README.md        # Dokumentasi
@@ -115,6 +140,8 @@ attendance-system/
 | username | VARCHAR(50) | Username unik untuk login |
 | password | VARCHAR(255) | Password yang sudah di-hash |
 | role | ENUM | 'admin' atau 'karyawan' |
+| photo | MEDIUMBLOB | Foto profil user |
+| photo_type | VARCHAR(50) | Tipe MIME foto |
 | face_encoding | TEXT | Data encoding wajah (JSON) |
 | face_registered | TINYINT | Status registrasi wajah (0/1) |
 | created_at | TIMESTAMP | Tanggal pembuatan |

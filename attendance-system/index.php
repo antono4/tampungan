@@ -285,12 +285,25 @@ $allAttendances = $isAdmin ? getAllAttendances($pdo) : [];
                 </div>
                 
                 <div class="flex items-center space-x-4">
+                    <a href="upload-photo.php" 
+                       class="flex items-center space-x-2 px-3 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition text-sm">
+                        <i class="fas fa-camera"></i>
+                        <span>Upload Foto</span>
+                    </a>
+                    <a href="face-login.php" 
+                       class="flex items-center space-x-2 px-3 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition text-sm">
+                        <i class="fas fa-face-smile"></i>
+                        <span>Face Recognition</span>
+                    </a>
                     <div class="text-right">
                         <p class="text-sm font-medium text-gray-800"><?= htmlspecialchars($userName) ?></p>
                         <p class="text-xs text-gray-500 capitalize"><?= htmlspecialchars($_SESSION['user_role']) ?></p>
                     </div>
-                    <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-                        <i class="fas fa-user text-gray-600"></i>
+                    <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden">
+                        <img src="view-photo.php?user_id=<?= $userId ?>" 
+                             alt="Avatar" 
+                             class="w-full h-full object-cover"
+                             onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\'fas fa-user text-gray-600\'></i>'">
                     </div>
                     <a href="?action=logout" 
                        class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">

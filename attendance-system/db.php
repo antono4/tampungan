@@ -254,3 +254,38 @@ function deleteFaceEncoding($pdo, $userId) {
         return ['success' => false, 'message' => 'Error: ' . $e->getMessage()];
     }
 }
+
+/**
+ * Fungsi untuk menyimpan foto user
+ */
+function savePhoto($pdo, $userId, $photoData, $photoType) {
+    try {
+        $stmt = $pdo->prepare("UPDATE users SET photo = ?, photo_type = ? WHERE id = ?");
+        $stmt->execute([$photoData, $photoType, $userId]);
+        return ['success' => true, 'message' => 'Foto berhasil disimpan!'];
+    } catch (PDOException $e) {
+        return ['success' => false, 'message' => 'Error: ' . $e->getMessage()];
+    }
+}
+
+/**
+ * Fungsi untuk mendapatkan foto user
+ */
+function getPhoto($pdo, $userId) {
+    $stmt = $pdo->prepare("SELECT photo, photo_type FROM users WHERE id = ?");
+    $stmt->execute([$userId]);
+    return $stmt->fetch();
+}
+
+/**
+ * Fungsi untuk menghapus foto user
+ */
+function deletePhoto($pdo, $userId) {
+    try {
+        $stmt = $pdo->prepare("UPDATE users SET photo = NULL, photo_type = 'image/jpeg' WHERE id = ?");
+        $stmt->execute([$userId]);
+        return ['success' => true, 'message' => 'Foto berhasil dihapus!'];
+    } catch (PDOException $e) {
+        return ['success' => false, 'message' => 'Error: ' . $e->getMessage()];
+    }
+}
