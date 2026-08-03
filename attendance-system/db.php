@@ -196,3 +196,61 @@ function deleteUser($pdo, $id) {
         return ['success' => false, 'message' => 'Error: ' . $e->getMessage()];
     }
 }
+
+/**
+ * Fungsi untuk menyimpan face encoding user
+ */
+function saveFaceEncoding($pdo, $userId, $faceEncoding) {
+    try {
+        $stmt = $pdo->prepare("UPDATE users SET face_encoding = ?, face_registered = 1 WHERE id = ?");
+        $stmt->execute([$faceEncoding, $userId]);
+        return ['success' => true, 'message' => 'Face encoding berhasil disimpan!'];
+    } catch (PDOException $e) {
+        return ['success' => false, 'message' => 'Error: ' . $e->getMessage()];
+    }
+}
+
+/**
+ * Fungsi untuk mendapatkan face encoding user
+ */
+function getFaceEncoding($pdo, $userId) {
+    $stmt = $pdo->prepare("SELECT face_encoding, face_registered FROM users WHERE id = ?");
+    $stmt->execute([$userId]);
+    return $stmt->fetch();
+}
+
+/**
+ * Fungsi untuk mendapatkan semua user dengan face registered
+ */
+function getAllUsersWithFace($pdo) {
+    $stmt = $pdo->prepare("SELECT id, nama, username, face_encoding, face_registered FROM users WHERE face_registered = 1");
+    $stmt->execute();
+    return $stmt->fetchAll();
+}
+
+/**
+ * Fungsi untuk login dengan face recognition
+ */
+function faceLogin($pdo, $detectedUserId) {
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ? AND face_registered = 1");
+    $stmt->execute([$detectedUserId]);
+    $user = $stmt->fetch();
+    
+    if ($user) {
+        return ['success' => true, 'user' => $user];
+    }
+    return ['success' => false, 'message' => 'Face tidak cocok dengan database!'];
+}
+
+/**
+ * Fungsi untuk menghapus face encoding user
+ */
+function deleteFaceEncoding($pdo, $userId) {
+    try {
+        $stmt = $pdo->prepare("UPDATE users SET face_encoding = NULL, face_registered = 0 WHERE id = ?");
+        $stmt->execute([$userId]);
+        return ['success' => true, 'message' => 'Face encoding berhasil dihapus!'];
+    } catch (PDOException $e) {
+        return ['success' => false, 'message' => 'Error: ' . $e->getMessage()];
+    }
+}

@@ -1,11 +1,12 @@
 # 📋 Sistem Absensi (Attendance System)
 
-Aplikasi Absensi karyawan menggunakan PHP dan MySQL dengan antarmuka modern menggunakan Tailwind CSS.
+Aplikasi Absensi karyawan menggunakan PHP dan MySQL dengan antarmuka modern menggunakan Tailwind CSS dan Face Recognition untuk login.
 
 ## ✨ Fitur
 
 ### 🔐 Sistem Login & Keamanan
 - Login dengan session yang aman
+- Login dengan **Face Recognition** (recognition wajah)
 - Password di-hash menggunakan bcrypt
 - Proteksi SQL Injection dengan Prepared Statements
 - Proteksi Unauthorized Access dengan role checking
@@ -20,6 +21,29 @@ Aplikasi Absensi karyawan menggunakan PHP dan MySQL dengan antarmuka modern meng
 - Dashboard personal dengan jam server real-time
 - Tombol Clock In & Clock Out dengan proteksi dobel absen
 - Riwayat absensi pribadi
+
+### 🎭 Face Recognition Login
+- Login menggunakan deteksi wajah
+- Registrasi wajah untuk user
+- Teknologi: face-api.js (TensorFlow.js based)
+- Mendukung multiple users dengan face data
+
+## 🎭 Cara Menggunakan Face Recognition Login
+
+### 1. Registrasi Wajah
+1. Login ke sistem menggunakan username dan password
+2. Buka menu **Face Recognition** atau akses `face-login.php`
+3. Aktifkan kamera dan klik **Mulai Kamera**
+4. Posisikan wajah Anda di depan kamera
+5. Klik **Ambil Foto Wajah** saat wajah terdeteksi
+6. Klik **Simpan Data Wajah** untuk menyimpan
+
+### 2. Login dengan Face Recognition
+1. Buka halaman `face-login.php`
+2. Aktifkan kamera
+3. Arahkan wajah ke kamera
+4. Sistem akan mendeteksi wajah dan menampilkan nama user
+5. Klik **Login dengan Face** untuk masuk
 
 ## 🚀 Cara Instalasi
 
@@ -73,9 +97,12 @@ php -S localhost:8000
 ```
 attendance-system/
 ├── database.sql      # Schema database dan data awal
-├── db.php            # Koneksi database dan fungsi CRUD
-├── index.php         # Main application (UI + Logic)
-└── README.md         # Dokumentasi
+├── db.php           # Koneksi database dan fungsi CRUD
+├── index.php        # Main application (UI + Logic)
+├── face-login.php   # Face Recognition Login Page
+├── api/
+│   └── get-face-data.php  # API untuk data face recognition
+└── README.md        # Dokumentasi
 ```
 
 ## 🗄️ Struktur Database
@@ -88,6 +115,8 @@ attendance-system/
 | username | VARCHAR(50) | Username unik untuk login |
 | password | VARCHAR(255) | Password yang sudah di-hash |
 | role | ENUM | 'admin' atau 'karyawan' |
+| face_encoding | TEXT | Data encoding wajah (JSON) |
+| face_registered | TINYINT | Status registrasi wajah (0/1) |
 | created_at | TIMESTAMP | Tanggal pembuatan |
 | updated_at | TIMESTAMP | Tanggal update terakhir |
 
