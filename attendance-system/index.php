@@ -238,6 +238,20 @@ $allAttendances = $isAdmin ? getAllAttendances($pdo) : [];
                         class="w-full bg-indigo-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-indigo-700 focus:ring-4 focus:ring-indigo-200 transition btn-pulse">
                     <i class="fas fa-sign-in-alt mr-2"></i>Masuk
                 </button>
+                
+                <div class="relative">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-gray-300"></div>
+                    </div>
+                    <div class="relative flex justify-center text-sm">
+                        <span class="px-2 bg-white text-gray-500">Atau</span>
+                    </div>
+                </div>
+                
+                <a href="face-login.php" 
+                   class="w-full flex items-center justify-center bg-green-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-green-700 focus:ring-4 focus:ring-green-200 transition">
+                    <i class="fas fa-face-smile mr-2"></i>Login dengan Face Recognition
+                </a>
             </form>
             
             <div class="mt-6 p-4 bg-blue-50 rounded-lg">

@@ -16,6 +16,8 @@ CREATE TABLE IF NOT EXISTS users (
     username VARCHAR(50) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     role ENUM('admin', 'karyawan') NOT NULL DEFAULT 'karyawan',
+    face_encoding TEXT NULL,
+    face_registered TINYINT(1) DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -52,6 +54,13 @@ CREATE TABLE IF NOT EXISTS attendances (
 -- =====================================================
 INSERT INTO users (nama, username, password, role) VALUES 
 ('Administrator', 'admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin');
+
+-- =====================================================
+-- MIGRASI: Tambahkan kolom face untuk face recognition
+-- Jalankan jika database sudah ada sebelumnya
+-- =====================================================
+-- ALTER TABLE users ADD COLUMN face_encoding TEXT NULL AFTER password;
+-- ALTER TABLE users ADD COLUMN face_registered TINYINT(1) DEFAULT 0 AFTER face_encoding;
 
 -- =====================================================
 -- DATA CONTOH - Karyawan
